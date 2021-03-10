@@ -136,11 +136,15 @@ class Problem : AppCompatActivity() {
         if(MaxGrade < grade ){
             getSharedPreferences("data", Context.MODE_PRIVATE).edit {
                 putInt("MaxGrade", grade)
+                putInt("Grade", grade)
             }
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, Success::class.java)
             startActivity(intent)
         }else{
-                val intent = Intent(this, MainActivity::class.java)
+            getSharedPreferences("data", Context.MODE_PRIVATE).edit {
+                putInt("Grade", grade)
+            }
+                val intent = Intent(this, Fail::class.java)
                 startActivity(intent)
                 finish()
         }

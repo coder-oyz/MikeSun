@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("data", MODE_PRIVATE)
         val maxGrade = prefs.getInt("MaxGrade", 0)
-        MaxGrade.text = maxGrade.toString()
+        MaxGrade.text = MaxGrade.text.toString() + maxGrade.toString()
 
         enter.setOnClickListener {
             val intent = Intent(this, Problem::class.java)
