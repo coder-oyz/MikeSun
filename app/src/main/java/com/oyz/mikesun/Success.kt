@@ -3,6 +3,7 @@ package com.oyz.mikesun
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_fail.*
 import kotlinx.android.synthetic.main.activity_success.*
 
@@ -13,6 +14,9 @@ class Success : AppCompatActivity() {
         val prefs = getSharedPreferences("data", MODE_PRIVATE)
         val grade = prefs.getInt("Grade", 0)
         GoodGrade.text=GoodGrade.text.toString() + grade
+
+
+        Toast.makeText(this, "答题成功，$grade", Toast.LENGTH_SHORT).show()
 
         success_back.setOnClickListener(){
             val intent = Intent(this, MainActivity::class.java)
