@@ -1,22 +1,21 @@
 package com.oyz.mikesun
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
-import android.os.Message
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.google.gson.Gson
-import com.oyz.mikesun.a.getTxtFilesCount
 import com.oyz.mikesun.entity.Question
+import com.oyz.mikesun.questUtil.calculate
+import com.oyz.mikesun.questUtil.getques
+import com.oyz.mikesun.questUtil.toMid
+import com.oyz.mikesun.questUtil.toPoland
 import kotlinx.android.synthetic.main.activity_problem.*
 import java.io.*
-import java.util.*
 import kotlin.collections.ArrayList
 
 class Problem : AppCompatActivity() {
@@ -60,10 +59,9 @@ class Problem : AppCompatActivity() {
 
 
 
-
         val num = intent.getIntExtra("num", 10)
         val levelString: String = intent.getStringExtra("level").toString()
-        var problem = getProblem(num,levelString)
+        var problem = getques(num,levelString)
 
 
         random_problem.text = problem[rnum].toString()
@@ -169,8 +167,8 @@ class Problem : AppCompatActivity() {
                 answer.text = ""
             }
             Myanswer = answer.text.toString()
-            Tanswer = calculate(random_problem.text.toString()).toString()
-            if(answer.text.toString() == Tanswer || calculate(answer.text.toString()).toString() == Tanswer){
+            Tanswer = calculate(toPoland(toMid(random_problem.text.toString()))).toString()
+            if(answer.text.toString() == Tanswer || calculate(toPoland(toMid(answer.text.toString() ))).toString() == Tanswer){
 
                 Toast.makeText(this, "答题成功，+10", Toast.LENGTH_SHORT).show()
                 grade += 10
@@ -287,7 +285,7 @@ class Problem : AppCompatActivity() {
         else -> 0
     }
 
-    private fun  getProblem(num: Int,level: String): Array<Any> {
+    /*private fun  getProblem(num: Int,level: String): Array<Any> {
 
         var problems = ArrayList<String>()
         val levelNum = getLevelNum(level)
@@ -353,7 +351,7 @@ class Problem : AppCompatActivity() {
         var res = 0.0
         while (!stack.isEmpty()) res += stack.pop()
         return res
-    }
+    }*/
 }
 
 

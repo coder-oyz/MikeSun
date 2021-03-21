@@ -16,8 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.oyz.mikesun.QuestionContentActivity
 import com.oyz.mikesun.R
-import com.oyz.mikesun.a
-import com.oyz.mikesun.a.getTxtFilesCount
 
 import kotlinx.android.synthetic.main.activity_review.*
 import kotlinx.android.synthetic.main.question_title_frag.*

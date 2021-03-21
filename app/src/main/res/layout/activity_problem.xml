@@ -88,6 +88,14 @@
             android:text="1+20=" />
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:layout_marginTop="25dp"
+            android:textSize="40sp"
+            android:text="=" />
+
+        <TextView
             android:id="@+id/answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

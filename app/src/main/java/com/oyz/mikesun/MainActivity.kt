@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        var level = arrayOf("简单", "普通", "困难")
+        var level = arrayOf("简单", "普通","中等", "困难")
         //创建一个数组适配器
         val adapter2: SpinnerAdapter =
             ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, level)
