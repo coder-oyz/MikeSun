@@ -1,24 +1,69 @@
 package com.oyz.mikesun
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Message
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import com.google.gson.Gson
+import com.oyz.mikesun.a.getTxtFilesCount
+import com.oyz.mikesun.entity.Question
 import kotlinx.android.synthetic.main.activity_problem.*
+import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 class Problem : AppCompatActivity() {
     var grade = 0
     var rnum = 0
+    val filePath1 = "/data/data/com.oyz.mikesun/files"
+    var count1 = 0
+    val count:Int = getTxtFilesCount(File(filePath1))//覆盖原先的文本内容
+
+
+
+
+    //按钮封装了一个 CountDownTimer，它来帮我们计时
+    private val countDownTimer: CountDownTimer by lazy {
+        object : CountDownTimer(20000, 1000) {
+            override fun onFinish() {
+                OK.performClick()
+            }
+
+            override fun onTick(t: Long) {
+                time.text = (t/1000).toString()
+            }
+        }
+    }
+
+
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        countDownTimer.cancel()   //防止内存泄漏
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_problem)
 
+
+        //开启倒计时线程
+        countDownTimer.start()
+
+
+
+
         val num = intent.getIntExtra("num", 10)
-        var problem = getProblem(num)
+        val levelString: String = intent.getStringExtra("level").toString()
+        var problem = getProblem(num,levelString)
 
 
         random_problem.text = problem[rnum].toString()
@@ -113,18 +158,19 @@ class Problem : AppCompatActivity() {
             answer.text = ""
         }
 
-        OK.setOnClickListener {
-            if (answer.text==null || answer.text.toString()=="" || answer.text.toString()=="?"){
-                Toast.makeText(this, "请输入答案", Toast.LENGTH_SHORT).show()
-                println("aaaaa")
-            }
 
-            if(answer.text.toString() == calculate(random_problem.text.toString()).toString() || calculate(
-                    answer.text.toString()
-                ).toString() == calculate(
-                    random_problem.text.toString()
-                ).toString()
-            ){
+        OK.setOnClickListener {
+
+            var Myanswer: String
+            var Tanswer: String
+
+            if (answer.text==null || answer.text.toString()=="" || answer.text.toString()=="?" ){
+                Toast.makeText(this, "请输入答案", Toast.LENGTH_SHORT).show()
+                answer.text = ""
+            }
+            Myanswer = answer.text.toString()
+            Tanswer = calculate(random_problem.text.toString()).toString()
+            if(answer.text.toString() == Tanswer || calculate(answer.text.toString()).toString() == Tanswer){
 
                 Toast.makeText(this, "答题成功，+10", Toast.LENGTH_SHORT).show()
                 grade += 10
@@ -135,23 +181,83 @@ class Problem : AppCompatActivity() {
                     quit()
                 }else{
                     random_problem.text = problem[rnum].toString()
+                    countDownTimer.start()
                     lastnum.text = (num - 1 -rnum).toString()
                     answer.text = ""
                 }
 
+            }else{
+                Toast.makeText(this, "答案错误", Toast.LENGTH_SHORT).show()
+                rnum++
+                if(rnum  == num){
+                    Toast.makeText(this, "答题完成", Toast.LENGTH_SHORT).show()
+                    quit()
+                }else{
+                    answer.setTextColor(Color.BLACK)
+                    random_problem.text = problem[rnum].toString()
+                    countDownTimer.start()
+                    lastnum.text = (num - 1 -rnum).toString()
+                    answer.text = ""
+                }
+
+
             }
+            save(Question(problem[rnum-1].toString(),Myanswer,Tanswer))
         }
 
     }
 
+
+    fun getTxtFilesCount(srcFile: File?): Int {
+        // 判断传入的文件是不是为空
+        if (srcFile == null) {
+            throw NullPointerException()
+        }
+        // 把所有目录、文件放入数组
+        val files: Array<File> = srcFile.listFiles()
+        // 遍历数组每一个元素
+        for (f in files) {
+            // 判断元素是不是文件夹，是文件夹就重复调用此方法（递归）
+            if (f.isDirectory) {
+                getTxtFilesCount(f)
+            } else {
+                // 判断文件是不是以.txt结尾的文件，并且count++（注意：文件要显示扩展名）
+                if (f.name.endsWith(".txt")) {
+                    count1++
+                }
+            }
+        }
+        // 返回.txt文件个数
+        return count1
+    }
+
+    fun save(question: Question){
+
+        var code: Int = count +1
+        val filePath = "/data/data/com.oyz.mikesun/files" + File.separator + "第 $code 次答题记录.txt"
+        println(filePath)
+        println(filePath)
+        var gson = Gson()
+
+        File(filePath).appendText(gson.toJson(question)+"\r\n")//覆盖原先的文本内容
+
+
+
+
+    }
+
+
+
     //退出答题
     fun quit() {
         val prefs = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val codeF = prefs.getInt("code",0)
         val MaxGrade = prefs.getInt("MaxGrade", 0)
         if(MaxGrade <= grade){
             getSharedPreferences("data", Context.MODE_PRIVATE).edit {
                 putInt("MaxGrade", grade)
                 putInt("Grade", grade)
+                putInt("code",codeF+1)
             }
             val grade = prefs.getInt("Grade", 0)
             Toast.makeText(this, "答题成功，$grade", Toast.LENGTH_SHORT).show()
@@ -161,6 +267,7 @@ class Problem : AppCompatActivity() {
         }else{
             getSharedPreferences("data", Context.MODE_PRIVATE).edit {
                 putInt("Grade", grade)
+                putInt("code",codeF+1)
             }
             val intent = Intent(this, Fail::class.java)
             startActivity(intent)
@@ -173,22 +280,31 @@ class Problem : AppCompatActivity() {
         quit()
     }
 
+    fun getLevelNum(level: String) = when{
+        level == "简单" -> 2
+        level == "普通" -> 3
+        level == "困难" -> 5
+        else -> 0
+    }
 
-    private fun  getProblem(num: Int): Array<Any> {
+    private fun  getProblem(num: Int,level: String): Array<Any> {
+
         var problems = ArrayList<String>()
-        val simple = arrayOf("+", "-", "*", "/")
+        val levelNum = getLevelNum(level)
+        val simple = arrayOf("+", "-", "x", "÷")
         var count = 0
         var pre = 0
         while (count<num) {
             //随机生成【1-100】之间的随机数
-            var str: String = (Math.random() * 100 + 1).toInt().toString()
-            //生成四则运算的数字个数,至少三个,最多五个
-            val a = (Math.random() * 3 + 3).toInt()
+            var str: String = (Math.random() * levelNum*20 + 1).toInt().toString()
+            //生成四则运算的数字个数,至少3个,最多五个
+            val a = levelNum
+
             pre = str.toInt()
 
             for (i in 0 until a - 1) {
                 //生成四则运算的数字
-                var b = (Math.random() * 100 + 1).toInt()
+                var b = (Math.random() * levelNum*20 + 1).toInt()
                 //生成运算符的位置
                 var c = (Math.random() * 4).toInt()
                 if (c == 3) {
@@ -227,7 +343,7 @@ class Problem : AppCompatActivity() {
                     stack.push(num)
                 else if (opt == '-')
                     stack.push(-num)
-                else if (opt == '*')
+                else if (opt == 'x')
                     stack.push(stack.pop() * num)
                 else stack.push(stack.pop() / num)
                 num = 0.0
@@ -239,3 +355,7 @@ class Problem : AppCompatActivity() {
         return res
     }
 }
+
+
+
+
