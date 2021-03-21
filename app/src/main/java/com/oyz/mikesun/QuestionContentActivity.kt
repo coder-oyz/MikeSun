@@ -65,7 +65,7 @@ class QuestionContentActivity : AppCompatActivity() {
 
     private fun initReview(title: String,questions: ArrayList<Question>)  {
 
-        val filePath ="/data/data/com.oyz.mikesun/files" + File.separator+ "$title.txt"
+        val filePath ="/data/data/com.oyz.mikesun/cache" + File.separator+ "$title.txt"
         var gson = Gson()
 
         File(filePath).forEachLine(){

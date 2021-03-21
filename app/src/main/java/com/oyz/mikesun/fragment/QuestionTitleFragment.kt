@@ -20,7 +20,6 @@ import com.oyz.mikesun.R
 import kotlinx.android.synthetic.main.activity_review.*
 import kotlinx.android.synthetic.main.question_title_frag.*
 import java.io.File
-import java.lang.StringBuilder
 
 class QuestionTitleFragment: Fragment() {
     private var isTwoPane = false
@@ -46,11 +45,12 @@ class QuestionTitleFragment: Fragment() {
 
     fun getTxtFilesCount(srcFile: File?): Int {
         // 判断传入的文件是不是为空
-        if (srcFile == null) {
-            throw NullPointerException()
+        if (srcFile == null || !srcFile.exists()) {
+            srcFile?.createNewFile()
+            //throw NullPointerException()
         }
         // 把所有目录、文件放入数组
-        val files: Array<File> = srcFile.listFiles()
+        val files: Array<File> = srcFile?.listFiles() as Array<File>
         // 遍历数组每一个元素
         for (f in files) {
             // 判断元素是不是文件夹，是文件夹就重复调用此方法（递归）
@@ -71,7 +71,7 @@ class QuestionTitleFragment: Fragment() {
 
     private fun getNews(): List<String> {
 
-        val filePath = "/data/data/com.oyz.mikesun/files"
+        val filePath = "/data/data/com.oyz.mikesun/cache"
 
 
         val count:Int = getTxtFilesCount(File(filePath))//覆盖原先的文本内容

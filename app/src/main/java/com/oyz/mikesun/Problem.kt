@@ -22,9 +22,9 @@ import kotlin.collections.ArrayList
 class Problem : AppCompatActivity() {
     var grade = 0
     var rnum = 0
-    val filePath1 = "/data/data/com.oyz.mikesun/files"
+    private val filePath1 = "/data/data/com.oyz.mikesun/cache"
     var count1 = 0
-    val count:Int = getTxtFilesCount(File(filePath1))//覆盖原先的文本内容
+    private val count:Int = getTxtFilesCount(File(filePath1))//覆盖原先的文本内容
 
 
 
@@ -214,10 +214,10 @@ class Problem : AppCompatActivity() {
         // 判断传入的文件是不是为空
         if (srcFile == null || !srcFile.exists()) {
             srcFile?.createNewFile()
-            throw NullPointerException()
+            //throw NullPointerException()
         }
         // 把所有目录、文件放入数组
-        val files: Array<File> = srcFile?.listFiles()
+        val files: Array<File> = srcFile?.listFiles() as Array<File>
         // 遍历数组每一个元素
         for (f in files) {
             // 判断元素是不是文件夹，是文件夹就重复调用此方法（递归）
@@ -237,7 +237,7 @@ class Problem : AppCompatActivity() {
     fun save(question: Question){
 
         var code: Int = count +1
-        val filePath = "/data/data/com.oyz.mikesun/files"+ File.separator + "第 $code 次答题记录.txt"
+        val filePath = "/data/data/com.oyz.mikesun/cache"+ File.separator + "第 $code 次答题记录.txt"
 
         var gson = Gson()
 
