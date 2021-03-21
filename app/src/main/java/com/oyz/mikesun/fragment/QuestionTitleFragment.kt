@@ -75,6 +75,7 @@ class QuestionTitleFragment: Fragment() {
 
 
         val count:Int = getTxtFilesCount(File(filePath))//覆盖原先的文本内容
+        println(count)
 
 
 

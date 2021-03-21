@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.widget.Toast
 import com.google.gson.Gson
 import com.oyz.mikesun.entity.Question
@@ -63,7 +64,8 @@ class QuestionContentActivity : AppCompatActivity() {
     }
 
     private fun initReview(title: String,questions: ArrayList<Question>)  {
-        val filePath = "/data/data/com.oyz.mikesun/files" + File.separator + "$title.txt"
+
+        val filePath ="/data/data/com.oyz.mikesun/files" + File.separator+ "$title.txt"
         var gson = Gson()
 
         File(filePath).forEachLine(){

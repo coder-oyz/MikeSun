@@ -43,7 +43,7 @@ object questUtil {
                 sdresult = 1000
                 sdkuohao = 0
                 sdzifang = 0
-                sdpar = 0
+                sdpar = 1
             }
         }
         val simple = arrayOf("+", "-", "x", "/", "^")
@@ -55,13 +55,13 @@ object questUtil {
             var str: String = (Math.random() * 100 + 1) .toInt().toString()
             pre = str.toInt()
             //生成四则运算的数字个数,至少三个,最多五个
-            val a = (Math.random() * 2 + sdpar).toInt()
+            val a = (Math.random() * 2+ sdpar).toInt()
             //运算符位置
             var p = 4
             if (sdzifang == 1) { //可以有次方
                 p = 5
             }
-            for (i in 0 until a - 1) {
+            for (i in 0 until a ) {
                 //生成四则运算的数字
                 var b = (Math.random() * 100 + 1).toInt()
                 //生成运算符的位置

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Environment
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -68,9 +69,12 @@ class Problem : AppCompatActivity() {
         lastnum.text = (num - 1 -rnum).toString()
 
         num_0.setOnClickListener {
-            if(answer.text.toString() != "?"){
+            if(answer.text.toString() == "?"){
+                answer.text = "1"
+            }else{
                 answer.text = answer.text.toString()+0
             }
+
         }
 
         num_1.setOnClickListener {
@@ -164,7 +168,7 @@ class Problem : AppCompatActivity() {
 
             if (answer.text==null || answer.text.toString()=="" || answer.text.toString()=="?" ){
                 Toast.makeText(this, "请输入答案", Toast.LENGTH_SHORT).show()
-                answer.text = ""
+                answer.text = 0.toString()
             }
             Myanswer = answer.text.toString()
             Tanswer = calculate(toPoland(toMid(random_problem.text.toString()))).toString()
@@ -208,11 +212,12 @@ class Problem : AppCompatActivity() {
 
     fun getTxtFilesCount(srcFile: File?): Int {
         // 判断传入的文件是不是为空
-        if (srcFile == null) {
+        if (srcFile == null || !srcFile.exists()) {
+            srcFile?.createNewFile()
             throw NullPointerException()
         }
         // 把所有目录、文件放入数组
-        val files: Array<File> = srcFile.listFiles()
+        val files: Array<File> = srcFile?.listFiles()
         // 遍历数组每一个元素
         for (f in files) {
             // 判断元素是不是文件夹，是文件夹就重复调用此方法（递归）
@@ -232,9 +237,8 @@ class Problem : AppCompatActivity() {
     fun save(question: Question){
 
         var code: Int = count +1
-        val filePath = "/data/data/com.oyz.mikesun/files" + File.separator + "第 $code 次答题记录.txt"
-        println(filePath)
-        println(filePath)
+        val filePath = "/data/data/com.oyz.mikesun/files"+ File.separator + "第 $code 次答题记录.txt"
+
         var gson = Gson()
 
         File(filePath).appendText(gson.toJson(question)+"\r\n")//覆盖原先的文本内容
