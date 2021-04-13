@@ -1,13 +1,21 @@
 package com.oyz.mikesun
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
+
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
 
 
         initSpinner()
@@ -28,11 +37,21 @@ class MainActivity : AppCompatActivity() {
 
         //记录是第几次做题
         val code = prefs.getInt("code", 0)
+        //记录是第几次下载
+        val downCode = prefs.getInt("downCOde", 0)
 
         MaxGrade.text = MaxGrade.text.toString() + maxGrade.toString()
 
         review.setOnClickListener{
             val intent = Intent(this, Review::class.java)
+            intent.putExtra("rOrd",1)
+            startActivity(intent)
+        }
+
+        download.setOnClickListener{
+            val intent = Intent(this, Review::class.java)
+            intent.putExtra("rOrd",2)
+
             startActivity(intent)
         }
 
@@ -47,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSpinner() {
-        var cnum = arrayOf("10", "20", "30", "40", "50")
+        var cnum = arrayOf("10", "20", "30", "40", "50","100","1000")
         //创建一个数组适配器
         val adapter: SpinnerAdapter =
             ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, cnum)
@@ -85,5 +104,54 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar,menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.backup -> doDownLoad()
+        }
+        return true
+    }
+
+    private fun doDownLoad() {
+        val prefs = getSharedPreferences("data", MODE_PRIVATE)
+        //记录是第几次做题
+        val downCode = prefs.getInt("downCode", 0)
+        var set = HashSet<String>()
+        while(set.size<= levelString?.toInt()!!){
+            val pro = num?.let { levelString?.let { it1 -> questUtil.foroneques(it, it1) } }
+            if (pro != null) {
+                set.add(pro)
+            }
+        }
+
+        //val filePath =  "第 $downCode 次下载记录.txt"
+        val file =  "${getString(R.string.app_name)}_question_${System.currentTimeMillis()}.txt"
+        val uri = fileUtil.saveTextFile(applicationContext ,set,file)
+        println(uri.toString()+ "ssssssssssssssssss")
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        //var uri2 = Uri.fromFile(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),filePath))
+
+        intent.setDataAndType(uri, "text/plain")
+        startActivity(intent)
+        with(AlertDialog.Builder(this)){
+            setTitle("文件地址")
+            setMessage("${Environment.DIRECTORY_DOWNLOADS}/$file")
+            setPositiveButton("知道了"){
+                d,w ->
+                true
+            }
+            show()
+        }
+        //Toast.makeText(this,,Toast.LENGTH_SHORT).show()
+        getSharedPreferences("data", Context.MODE_PRIVATE).edit {
+            putInt("downCode", downCode+1)
+        }
     }
 }
